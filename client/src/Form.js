@@ -1,16 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { dateFormat } from "./date_format";
 import { data } from "./nationality";
 import { mobile_country } from "./mobile_country_code";
+import axios from "axios";
+
 const Form = () => {
   const [name, setName] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("");
   const [gender, setGender] = useState("");
   const [title, setTitle] = useState("");
   const [nationality, setNationality] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [countryCode, setCountryCode] = useState("");
   const [date, setDateFormat] = useState("");
-  const [country, setCountry] = useState("");
+  const [countries, setCountries] = useState([]);
   const [radioSelected, setRadioSelected] = useState("");
   const [checkboxChecked, setCheckboxChecked] = useState(false);
   const handleRadioChange = (event) => {
@@ -25,6 +28,20 @@ const Form = () => {
   const handleCheckboxChange = (event) => {
     setCheckboxChecked(event.target.checked);
   };
+
+  console.log("countriesss", countries);
+
+  useEffect(() => {
+    async function countryData() {
+      let countriesData = await axios.get("http://localhost:8080/country-list");
+      console.log(countriesData.data);
+      let countrylist = countriesData.data.map((item) => {
+        return { country: item.country, id: item.id };
+      });
+      setCountries(countrylist);
+    }
+    countryData();
+  }, []);
 
   return (
     <div className="form-container">
@@ -108,13 +125,13 @@ const Form = () => {
           <label htmlFor="country">Country:</label>
           <select
             id="country"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
+            value={selectedCountry}
+            onChange={(e) => setSelectedCountry(e.target.value)}
             required
           >
             <option value="">Select</option>
-            {mobile_country.map((country) => (
-              <option value={country.country} key={country.country}>
+            {countries.map((country) => (
+              <option value={country.country} key={country.id}>
                 {country.country}
               </option>
             ))}
